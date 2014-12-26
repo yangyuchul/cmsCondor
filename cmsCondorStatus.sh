@@ -75,7 +75,7 @@ done
 
 for dir in $dirs
 do
-	ThisCheck $dir
+echo "	ThisCheck $dir"
 done
 
 for log in $logs
