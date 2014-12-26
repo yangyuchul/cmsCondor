@@ -1,15 +1,18 @@
 #!/bin/bash
 
-dir="./"
-if [ "${1}" != "" ]; then dir=$1; fi
-
+doDetail=False
+logs=""
+function ThisCheck() {
+dir=$1
 cd $dir
+
 if [ ! -d condorLog ]; then
 	echo "Not Found CondorDir"
 	echo "Usage $0 CondorDir"
 	exit
 fi
 
+rm -rf .status
 logFiles=`ls -1v condorLog/condorLog*.log`
 logFilesN=`ls -1v condorLog/condorLog*.log | wc -l`
 
@@ -28,23 +31,56 @@ do
 
 	if [ "${isRunning}" == "1" ]; then
 		((nRun++))
-		echo "@@@ Run ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]"
-		if [ "$2" == "-detail" ]; then
-			condor_tail -maxbytes 102400 ${clusterId}.${condorId} | tail -n 5
-			echo ""
+		echo "@@@ Run ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]" >> .status
+		tail -n 1 .status
+		if [ "$doDetail" == "True" ]; then
+			condor_tail -maxbytes 102400 ${clusterId}.${condorId} >> .status
+			tail -n 1 .status
+			echo "" >> .status
+			tail -n1 .status
 		fi
 	elif [ "${isIdle}" == "1" ]; then
 		((nIdle++))
-		echo "@@@ Idle ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]"
+		echo "@@@ Idle ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]" >> .status
+		tail -n 1 .status
 	else
 		((nDone++))
-		grep "@@@ Done ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]"
-		if [ "$2" == "-detail" ]; then
-			grep "RunSummary" $logFile
-			echo ""
+		grep "@@@ Done ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]" >> .status
+		tail -n 1 .status
+		if [ "$doDetail" == "True" ]; then
+			grep "RunSummary" $logFile >> .status
+			echo "" >> .status
+			tail -n 2 >> .status
 		fi
 	fi
 done
-echo ""
-echo "### Summary Run: $nRun   Idle: $nIdle   Done: $nDone  /  Total $logFilesN"
+echo "" >> .status
+tail -n 1 .status
+echo "### Summary Run: $nRun   Idle: $nIdle   Done: $nDone  /  Total $logFilesN" >> .status
+tail -n 1 .status
+logs="$dir/.status $logs"
+}
+
+
+dirs=""
+for arg in $@
+do
+	if [ "$arg" == "-detail" ]; then doDetail=True; continue; fi
+	if [ -d $arg ]; then
+		dirs="${arg} $dirs"
+	else
+		"NotFound $arg directory"
+	fi
+done
+
+for dir in $dirs
+do
+	ThisCheck $dir
+done
+
+for log in $logs
+do
+	echo "See $log"
+done
+
 
