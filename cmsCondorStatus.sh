@@ -67,7 +67,7 @@ for arg in $@
 do
 	if [ "$arg" == "-detail" ]; then doDetail=True; continue; fi
 	if [ -d $arg ]; then
-		dirs="${arg} $dirs"
+		dirs="${dirs} ${arg}"
 	else
 		"NotFound $arg directory"
 	fi
