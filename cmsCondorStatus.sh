@@ -49,9 +49,9 @@ do
 		echo "@@@ Done ${clusterId}.${condorId} [ R: $nRun I: $nIdle D: $nDone / T: $logFilesN ]" >> .status
 		tail -n 1 .status
 		if [ "$doDetail" == "True" ]; then
-			grep "RunSummary" $logFile >> .status
+			grep "SummaryRunInformation" $logFile >> .status
 			echo "" >> .status
-			tail -n 2 >> .status
+			tail -n 2 .status
 		fi
 	fi
 done
