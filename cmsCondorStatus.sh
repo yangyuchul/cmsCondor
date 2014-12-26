@@ -2,6 +2,7 @@
 
 doDetail=False
 logs=""
+
 function ThisCheck() {
 dir=$1
 cd $dir
@@ -73,14 +74,9 @@ do
 	fi
 done
 
-for dir in $dirs
-do
-echo "	ThisCheck $dir"
-done
-
-for log in $logs
-do
-	echo "See $log"
-done
+firstDir=$PWD
+for dir in $dirs ; do cd $firstDir; echo "	ThisCheck $dir"; done
+echo ""
+for log in $logs; do echo "See $log"; done
 
 
