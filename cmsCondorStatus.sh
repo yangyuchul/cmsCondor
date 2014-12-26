@@ -75,7 +75,7 @@ do
 done
 
 firstDir=$PWD
-for dir in $dirs ; do cd $firstDir; echo "	ThisCheck $dir"; done
+for dir in $dirs ; do cd $firstDir; ThisCheck $dir; done
 echo ""
 for log in $logs; do echo "See $log"; done
 
