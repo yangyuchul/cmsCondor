@@ -26,6 +26,7 @@ maxFiles=NULL
 XrdOutPATH=NULL
 ReturnOutput=True
 AutoSubmit=False
+JSONFILE=""
 AddFiles=""
 AddFilesABS=""
 ExeFile=""
@@ -50,6 +51,7 @@ function argvPar() {
 		if [ "${arg1}" == "-xrdout"   ]; then XrdOutPATH=${arg2}     ; continue; fi
 		if [ "${arg1}" == "-getout"   ]; then ReturnOutput=${arg2}   ; continue; fi
 		if [ "${arg1}" == "-submit"   ]; then AutoSubmit=True        ; continue; fi
+		if [ "${arg1}" == "-json"     ]; then JSONFILE=${arg2}       ; continue; fi
 		if [ "${arg1}" == "-exe"      ]; then ExeFile=${arg2}        ; continue; fi
 		if [ "${arg1}" == "-execute"  ]; then ExeFile=${arg2}        ; continue; fi
 		if [ "${arg1}" == "-exefile"  ]; then ExeFile=${arg2}        ; continue; fi
@@ -225,7 +227,7 @@ for tryN in \`seq 1 5\`
 do
    echo "@@@ cmsRun Start TryNumber \$tryN \`date\`"
    dateSTARTcmsRun=\$(date +"%s")
-   cmsRun cmsRunPSet.py 2>&1 | tee cmsRunLog_\${ThisJobStr}.log
+   cmsRun -j cmsRunLog_\${ThisJobStr}.xml  cmsRunPSet.py 2>&1 | tee cmsRunLog_\${ThisJobStr}.log
    cmsRunStatus=\$?
 	echo ""
    dateENDcmsRun=\$(date +"%s")
@@ -252,6 +254,7 @@ do
 		ThisEventSummary=\`grep "TrigReport Events total =" cmsRunLog_\${ThisJobStr}.log \`
 		ThisCMSRunLogName=\`basename cmsRunLog_\${ThisJobStr}.log\`
     	cp cmsRunLog_\${ThisJobStr}.log \${FirstDir}/cmsRunLog/
+		cp cmsRunLog_\${ThisJobStr}.xml \${FirstDir}/cmsRunLog/
       break
    else
       echo "   @@@ CMSRUNResult TryNumber \$tryN cmsRunFail \$cmsRunStatus TimeMinutes \$dateDIFFcmsRun Retry \`expr \$tryN + 1\`"
