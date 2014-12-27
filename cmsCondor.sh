@@ -381,7 +381,21 @@ psetFile.write("process.maxEvents = cms.untracked.PSet(input = cms.untracked.int
 psetFile.close()
 EOF
 	chmod +x makePSet
-	./makePSet original_cfg.py >& makePSet.log
+	cd $FirstDir
+	removeOrig=false
+	if [ ! -f original_cfg.py ]; then ln -s $CondorWorkDir/input/src/original_cfg.py .; removeOrig="True"; fi
+	#$CondorWorkDir/input/src/makePSet original_cfg.py >& $CondorWorkDir/input/src/makePSet.log
+	$CondorWorkDir/input/src/makePSet original_cfg.py
+	MadeCondorPSet=$?
+	if [ "$MadeCondorPSet" == "0" ]; then
+		mv cmsRunPSet.py cmsRunPSet.pkl .out_name_file $CondorWorkDir/input/src/
+	else 
+		echo "   @MakeCondorPSet $MadeCondorPSet SomeThingWrong"
+		exit
+	fi
+	if [ "${removeOrig}" == "True" ]; then rm -rf original_cfg.py; fi
+	cd $CondorWorkDir/input/src/
+	
 	if [ "${AddOutFiles}" != "" ]; then
 		for addout in $AddOutFiles
 		do
@@ -397,7 +411,7 @@ EOF
 	done
 	echo $OutROOTNames
 	echo ""
-	rm -rf makePSet makePSet.log
+	#rm -rf makePSet makePSet.log
 	if [ "$numOutFile" == "0" ]; then echo "Not Found Output process.TFileService nor process.outputModules_() in $origCFG" >> $CondorWorkDir/.jobConfigError ; fi
 }
 
@@ -412,7 +426,9 @@ function makeList() {
 	for site in $sites; do sitesStr="$sitesStr $site"; done
 	isKISTI=`echo $sites | grep -E "T3_KR_KISTI|cms-se.sdfarm.kr" | wc -l`
 	isKNU=`echo $sites | grep -E "T2_KR_KNU|cluster142.knu.ac.kr" | wc -l`
-	URL="root://xrootd-cms.infn.it:1194/"
+	#URL="root://xrootd-cms.infn.it:1194/"
+	#URL="root://xrootd.ba.infn.it/"
+	URL="root://cms-xrd-global.cern.ch/"
 	hn=`hostname`
 	if [ "${hn:0:3}" == "ccp" ]; then
 		if [ "${isKNU}" != "0" ]; then URL="root://cluster142.knu.ac.kr/"; fi
