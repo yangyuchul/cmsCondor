@@ -292,7 +292,6 @@ echo "SummaryRunInformation ThisCMSRunLogName= \${ThisCMSRunLogName}"
 echo "SummaryRunInformation ThisNEventsInDAS= \${ThisNEventsInDAS}"
 echo "SummaryRunInformation ThisSumNEventsInDAS= \${ThisSumNEventsInDAS}"
 echo "SummaryRunInformation ThisEventSummary= \${ThisEventSummary}"
-echo ""
 EOF
 	if [ "${ExeFile}" != "" ]; then
 		echo "echo ''" >> condorRun.sh
